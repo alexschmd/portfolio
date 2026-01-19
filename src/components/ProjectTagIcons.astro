@@ -1,0 +1,59 @@
+---
+const { tags } = Astro.props as { tags: string[] };
+
+const normalize = (value: string) =>
+  value.toLowerCase().replace(/[^a-z0-9]+/g, "");
+
+const aliases: Record<string, string> = {
+  html: "html5",
+  nextjs: "nextdotjs",
+  shadcn: "shadcnui",
+  tailwind: "tailwindcss",
+  tanstackstart: "tanstack",
+  turoborepo: "turborepo",
+};
+
+const iconModules = import.meta.glob("../assets/brands/*.svg.astro", {
+  eager: true,
+});
+
+const icons = Object.fromEntries(
+  Object.entries(iconModules).map(([path, mod]) => {
+    const name =
+      path
+        .split("/")
+        .pop()
+        ?.replace(/\.svg\.astro$/, "") ?? "";
+    return [normalize(name), (mod as any).default];
+  }),
+) as Record<string, any>;
+
+const getIcon = (tag: string) => {
+  const key = aliases[normalize(tag)] ?? normalize(tag);
+  return icons[key];
+};
+---
+
+<div class="flex flex-wrap items-center gap-0 -m-2">
+  {
+    tags.map((tag) => {
+      const Icon = getIcon(tag);
+      return Icon ? (
+        <span
+          title={tag}
+          class="inline-flex items-center justify-center p-2 rounded-md text-subtle transition-colors group-hover:border-accent/20 group-hover:text-text hover:border-accent/30 hover:text-accent [&>svg]:h-4 [&>svg]:w-4 [&>svg]:fill-current"
+        >
+          <Icon />
+          <span class="sr-only">{tag}</span>
+        </span>
+      ) : (
+        <span
+          title={tag}
+          class="rounded-full border border-white/10 px-2 py-0.5 text-xs text-muted"
+        >
+          {tag}
+        </span>
+      );
+    })
+  }
+</div>

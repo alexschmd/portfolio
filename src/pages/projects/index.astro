@@ -1,0 +1,68 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import ProjectListItem from "@/components/ProjectListItem.astro";
+import { getCollection } from "astro:content";
+
+const siteTitle = "Projekte";
+const description = "Meine Projekte";
+
+const projects = (await getCollection("projects"))
+  .filter((project) => !project.data.draft)
+  .sort((a, b) => {
+    const aTime = a.data.date ? a.data.date.getTime() : 0;
+    const bTime = b.data.date ? b.data.date.getTime() : 0;
+    return bTime - aTime;
+  });
+
+const projectsByYear = Object.groupBy(projects, (project) =>
+  project.data.date ? String(project.data.date.getFullYear()) : "Ohne Datum",
+);
+
+const years = Object.keys(projectsByYear).sort((a, b) => {
+  const aKey = a === "Ohne Datum" ? -1 : Number(a);
+  const bKey = b === "Ohne Datum" ? -1 : Number(b);
+  return bKey - aKey;
+});
+---
+
+<BaseLayout title={siteTitle} description={description}>
+  <div class="mx-auto w-full max-w-5xl px-6 pt-16">
+    <header
+      class="mb-16 opacity-0 animate-fade-in-up"
+      style="animation-delay: 0s;"
+    >
+      <h1 class="text-2xl tracking-tight text-text">Projekte</h1>
+      <p class="mt-2 text-sm text-muted">
+        Verschiedene Projekte, die ich über die Zeit umgesetzt habe. Darunter
+        auch erste Spielereien und verschiedene Technologien.
+      </p>
+      <p class="mt-4 text-sm text-subtle">
+        Fragen oder Anregungen?
+        <a
+          href="/contact"
+          class="text-accent transition-colors hover:text-text"
+        >
+          Kontaktier mich!
+        </a>
+      </p>
+    </header>
+    <div class="opacity-0 animate-fade-in-up">
+      <div class="mt-8 flex flex-col gap-12">
+        {
+          years.map((year, i) => (
+            <section aria-label={`Projekte ${year}`}>
+              <h2 class="tracking-widest text-muted border-transparent pl-4">
+                {year}
+              </h2>
+              <ul class="mt-4 flex flex-col gap-4">
+                {projectsByYear[year]?.map((project) => (
+                  <ProjectListItem project={project} />
+                ))}
+              </ul>
+            </section>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</BaseLayout>
