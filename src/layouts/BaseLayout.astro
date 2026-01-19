@@ -1,0 +1,135 @@
+---
+import { cn } from "../lib/utils";
+import "../styles/global.css";
+import { ClientRouter } from "astro:transitions";
+import { ArrowLeftIcon, Github, Linkedin, Mail } from "@lucide/astro";
+
+const socialLinks = [
+  { href: "mailto:mail@schmidalex.de", label: "Mail", icon: Mail },
+  { href: "https://github.com/alexschmd", label: "GitHub", icon: Github },
+  {
+    href: "https://www.linkedin.com/in/alexanderschmd",
+    label: "LinkedIn",
+    icon: Linkedin,
+  },
+];
+
+interface Props {
+  title: string;
+  description: string;
+  classNames?: {
+    html?: string;
+    body?: string;
+    main?: string;
+    footer?: string;
+  };
+  backToLink?:
+    | false
+    | {
+        text: string;
+        href: string;
+      };
+}
+
+const defaultBackToLink: Props["backToLink"] = {
+  text: "Zurück",
+  href: "/",
+};
+
+const {
+  title,
+  description,
+  classNames,
+  backToLink = defaultBackToLink,
+} = Astro.props;
+const isHomepage = Astro.url.pathname === "/";
+---
+
+<html
+  lang="en"
+  class={cn("h-full bg-void", classNames?.html)}
+  style="view-transition-name:root"
+>
+  <head>
+    <ClientRouter />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="/favicon.svg" />
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <title>{title}</title>
+    <meta name="theme-color" content="#050505" />
+  </head>
+  <body
+    class={cn(
+      "min-h-full bg-void font-mono text-text selection:bg-accent/20",
+      classNames?.body,
+    )}
+  >
+    <main class={cn("flex min-h-screen flex-col text-text", classNames?.main)}>
+      <div class="flex-1">
+        <slot />
+      </div>
+      {
+        !isHomepage && backToLink && (
+          <div class="sticky bottom-[max(1rem,env(safe-area-inset-bottom))] z-50 mx-auto w-full max-w-5xl px-6 py-4 pointer-events-none">
+            <div class="flex justify-center">
+              <a
+                href={backToLink.href}
+                class="ui-ring-accent pointer-events-auto group inline-flex items-center justify-center gap-2 rounded-md border border-white/10 bg-void/70 px-3 py-2 text-muted backdrop-blur transition-all duration-200 hover:border-accent/30 hover:bg-surface hover:text-text hover:shadow-xs focus-visible:border-accent/40"
+              >
+                <ArrowLeftIcon class="transition-transform duration-200 group-hover:-translate-x-0.5" />
+                <span class="text-sm tracking-wide">{backToLink.text}</span>
+              </a>
+            </div>
+          </div>
+        )
+      }
+      <footer
+        class={cn(
+          "[--space:--spacing(6)] sm:[--space:--spacing(10)]",
+          "border-t border-white/5 pt-(--space) pb-[max(var(--space),env(safe-area-inset-bottom))]",
+          classNames?.footer,
+        )}
+      >
+        <div class="container mx-auto px-4">
+          <div
+            class="flex w-full items-center justify-center gap-x-6 text-sm tracking-wider"
+          >
+            {
+              socialLinks.map((link) => (
+                <a
+                  href={link.href}
+                  target={link.href.startsWith("http") ? "_blank" : undefined}
+                  rel={
+                    link.href.startsWith("http")
+                      ? "noopener noreferrer"
+                      : undefined
+                  }
+                  class="text-muted transition-colors duration-200 hover:text-text"
+                >
+                  {(() => {
+                    const Icon = link.icon;
+                    return (
+                      <>
+                        <Icon size={18} />
+                        <span class="sr-only">{link.label}</span>
+                      </>
+                    );
+                  })()}
+                </a>
+              ))
+            }
+          </div>
+          <div class="flex w-full items-center justify-center text-sm pt-3">
+            <span class="text-muted"
+              >@{new Date().getFullYear()} Alexander Schmid</span
+            >
+          </div>
+        </div>
+      </footer>
+    </main>
+  </body>
+</html>
