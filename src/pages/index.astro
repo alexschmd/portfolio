@@ -1,27 +1,85 @@
 ---
-import { Button } from "@/components/ui/button";
 import "../styles/global.css";
-// Component Imports
+import BaseLayout from "../layouts/BaseLayout.astro";
+import IndexLinkItem from "@/components/IndexLinkItem.astro";
+import { getCollection } from "astro:content";
+import ProjectListItem from "@/components/ProjectListItem.astro";
+import ProjectTagIcons from "@/components/ProjectTagIcons.astro";
 
-// Full Astro Component Syntax:
-// https://docs.astro.build/basics/astro-components/
+const siteTitle = "Alexander Schmid";
+const description =
+  "Mein Name ist Alexander Schmid, ich bin Software Entwickler.";
+
+const latestProjects = (await getCollection("projects"))
+  .filter((project) => !project.data.draft)
+  .sort((a, b) => {
+    const aTime = a.data.date ? a.data.date.getTime() : 0;
+    const bTime = b.data.date ? b.data.date.getTime() : 0;
+    return bTime - aTime;
+  })
+  .slice(0, 3);
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="generator" content={Astro.generator} />
-    <title>Astro + TailwindCSS</title>
-  </head>
+<BaseLayout title={siteTitle} description={description}>
+  <div class="mx-auto w-full max-w-5xl px-6 pt-16">
+    <header class="opacity-0 animate-fade-in-up" style="animation-delay: 0s;">
+      <p class="text-sm tracking-wider text-muted">Software Entwickler</p>
+      <h1 class="mt-2 text-3xl tracking-tight text-text">Alexander Schmid</h1>
+      <p class="mt-4 max-w-2xl text-sm text-muted">
+        Ich baue moderne Web-Apps, bin ein riesen Fan von minimalistischer UI
+        und setzte mich gerne mit neuen Technologien auseinander.
+      </p>
+    </header>
 
-  <body>
-    <div class="grid place-items-center h-screen content-center">
-      <Button>Tailwind Button in Astro!</Button>
-      <a href="/markdown-page" class="p-4 underline"
-        >Markdown is also supported...</a
+    <section class="mt-16">
+      <IndexLinkItem
+        href="/about"
+        label="Über mich"
+        style="animation-delay: 0.05s;"
       >
-    </div>
-  </body>
-</html>
+        <p class="max-w-2xl text-subtle">
+          Lorem ipsum, dolor sit amet consectetur adipisicing elit. Accusamus
+          ipsam officiis aut debitis esse. Molestias nostrum similique saepe
+          rerum maxime laudantium esse quidem incidunt, corporis et, voluptatem
+          placeat ullam odio!
+        </p>
+        <div
+          class="mt-4 max-w-2xl rounded-lg border border-white/5 bg-surface p-4"
+        >
+          <p class="text-sm text-text">Aktuell: Software Entwickler</p>
+          <p class="mt-1 text-sm text-muted">
+            Hier kannst du Firma/Team/Schwerpunkt reinpacken.
+          </p>
+        </div>
+      </IndexLinkItem>
+    </section>
+
+    <section class="mt-12">
+      <IndexLinkItem
+        href="/skills"
+        label="Tech Stack"
+        style="animation-delay: 0.15s;"
+      >
+        <div class="group">
+          <ProjectTagIcons tags={["Astro", "tsnode", "tailwind", "Next.js"]} />
+        </div>
+      </IndexLinkItem>
+    </section>
+
+    <section class="mt-12 pb-16">
+      <IndexLinkItem
+        href="/projects"
+        label="Letzte Projekte"
+        style="animation-delay: 0.2s;"
+      >
+        <ul class="flex flex-col gap-4">
+          {
+            latestProjects.map((project) => (
+              <ProjectListItem project={project} />
+            ))
+          }
+        </ul>
+      </IndexLinkItem>
+    </section>
+  </div>
+</BaseLayout>
