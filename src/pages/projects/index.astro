@@ -3,7 +3,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import ProjectListItem from "@/components/ProjectListItem.astro";
 import { getCollection } from "astro:content";
 
-const siteTitle = "Projekte";
+const siteTitle = "Projekte | Alexander Schmid";
 const description = "Meine Projekte";
 
 const projects = (await getCollection("projects"))
@@ -23,6 +23,18 @@ const years = Object.keys(projectsByYear).sort((a, b) => {
   const bKey = b === "Ohne Datum" ? -1 : Number(b);
   return bKey - aKey;
 });
+
+let delayTenths = 1;
+const projectGroups = years.map((year) => {
+  const items = projectsByYear[year] ?? [];
+  const yearDelay = delayTenths++ / 10;
+  const projectsWithDelay = items.map((project) => ({
+    project,
+    delay: delayTenths++ / 10,
+  }));
+
+  return { year, yearDelay, projectsWithDelay };
+});
 ---
 
 <BaseLayout title={siteTitle} description={description}>
@@ -34,7 +46,7 @@ const years = Object.keys(projectsByYear).sort((a, b) => {
       <h1 class="text-2xl tracking-tight text-text">Projekte</h1>
       <p class="mt-2 text-sm text-muted">
         Verschiedene Projekte, die ich über die Zeit umgesetzt habe. Darunter
-        auch erste Spielereien und verschiedene Technologien.
+        auch erste Spielereien und zahlreiche Technologien.
       </p>
       <p class="mt-4 text-sm text-subtle">
         Fragen oder Anregungen?
@@ -46,23 +58,28 @@ const years = Object.keys(projectsByYear).sort((a, b) => {
         </a>
       </p>
     </header>
-    <div class="opacity-0 animate-fade-in-up">
-      <div class="mt-8 flex flex-col gap-12">
-        {
-          years.map((year, i) => (
-            <section aria-label={`Projekte ${year}`}>
-              <h2 class="tracking-widest text-muted border-transparent pl-4">
-                {year}
-              </h2>
-              <ul class="mt-4 flex flex-col gap-4">
-                {projectsByYear[year]?.map((project) => (
-                  <ProjectListItem project={project} />
-                ))}
-              </ul>
-            </section>
-          ))
-        }
-      </div>
+    <div class="mt-8 flex flex-col gap-12">
+      {
+        projectGroups.map(({ year, yearDelay, projectsWithDelay }) => (
+          <section aria-label={`Projekte ${year}`}>
+            <h2
+              class="tracking-widest text-muted border-transparent pl-4 opacity-0 animate-fade-in-up"
+              style={`animation-delay: ${yearDelay}s;`}
+            >
+              {year}
+            </h2>
+            <ul class="mt-4 flex flex-col gap-4">
+              {projectsWithDelay.map(({ project, delay }) => (
+                <ProjectListItem
+                  project={project}
+                  class="opacity-0 animate-fade-in-up"
+                  style={`animation-delay: ${delay}s;`}
+                />
+              ))}
+            </ul>
+          </section>
+        ))
+      }
     </div>
   </div>
 </BaseLayout>
