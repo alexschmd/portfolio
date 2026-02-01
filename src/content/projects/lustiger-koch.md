@@ -8,6 +8,4 @@ repoUrl: "https://gitlab.hsrw.eu/33455/fp-testat"
 draft: false
 ---
 
-## Überblick
 
-Kurze Beschreibung des Projekts.

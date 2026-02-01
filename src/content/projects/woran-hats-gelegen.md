@@ -8,6 +8,4 @@ repoUrl: "https://gitlab.com/alexschmd/woranhatsgelegen"
 draft: false
 ---
 
-## Überblick
-
-Kurze Beschreibung des Projekts.
+Diese Seite ist ein Ausreden-Generator für jede Gelegenheit. Mit einem Klick erhältst du spontane, humorvolle oder erstaunlich plausible Erklärungen – perfekt, wenn dir mal wieder die passenden Worte fehlen. Ob für zu spät abgegebene Hausarbeiten, verpasste Termine oder ausgefallene Verabredungen: Hier findest du die passende Ausrede zwischen genial, absurd und charmant übertrieben.  
