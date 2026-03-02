@@ -1,20 +1,17 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 
-const siteTitle = "Über mich";
+const siteTitle = "Über mich | Alexander Schmid";
 const description = "Über mich.";
 ---
 
 <BaseLayout title={siteTitle} description={description}>
-  <div class="mx-auto w-full max-w-5xl px-6 py-16">
+  <div class="mx-auto w-full max-w-3xl px-6 py-16">
     <header
       class="mb-16 opacity-0 animate-fade-in-up"
       style="animation-delay: 0s;"
     >
       <h1 class="text-2xl tracking-tight text-text">Über mich</h1>
-      <p class="mt-2 text-sm text-muted">
-        Verschiedene Projekte, die ich über die Zeit umgesetzt habe
-      </p>
     </header>
   </div>
 </BaseLayout>
