@@ -4,28 +4,29 @@ import { ChevronRight } from "@lucide/astro";
 interface Props {
   href: string;
   label: string;
+  actionText?: string;
   style?: string;
 }
 
-const { href, label, style } = Astro.props;
+const { href, label, actionText = "Alle anzeigen", style } = Astro.props;
 ---
 
 <div class="group opacity-0 animate-fade-in-up" style={style}>
-  <a
-    href={href}
-    class="relative flex w-full items-start justify-between gap-4 py-3"
-  >
+  <div class="flex w-full items-start justify-between gap-4 py-3">
     <div class="min-w-0 flex-1">
-      <div class="text-subtle transition-colors duration-200 group-hover:text-text">
-        {label}
-      </div>
+      <div class="">{label}</div>
     </div>
-    <span class="mt-1 shrink-0 text-muted opacity-0 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0.5">
-      <ChevronRight size={16} />
+    <span class="mt-1 shrink-0">
+      <a
+        href={href}
+        class="relative inline-flex items-center gap-1 rounded-sm text-sm text-muted transition-all duration-200 hover:translate-x-0.5 hover:text-text after:content-[''] after:absolute after:-bottom-1 after:-left-1 after:h-px after:w-0 after:bg-accent/40 after:transition-all after:duration-300 after:ease-out hover:after:w-[calc(100%+0.25rem)]"
+      >
+        {actionText}
+        <ChevronRight size={16} />
+      </a>
     </span>
-    <span class="absolute bottom-2 left-0 h-px w-0 bg-accent/40 transition-all duration-300 ease-out group-hover:w-full" />
-  </a>
-  <div class="mt-2 text-sm text-muted">
+  </div>
+  <div class="mt-2">
     <slot />
   </div>
 </div>
