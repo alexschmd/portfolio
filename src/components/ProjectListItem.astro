@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from "astro:content";
-import { ExternalLinkIcon, Github } from "@lucide/astro";
+import { ExternalLinkIcon } from "@lucide/astro";
+import GithubIcon from "@/assets/github.svg.astro";
 import ProjectTagIcons from "@/components/ProjectTagIcons.astro";
 
 type Props = {
@@ -20,11 +21,7 @@ const baseClass =
   "group relative rounded-lg border border-white/5 bg-white/0 p-4 transition-[color,box-shadow,border-color,background-color] duration-200 hover:border-accent/30 hover:bg-surface hover:ring-[3px] hover:ring-accent/20 focus-within:border-accent/40 focus-within:ring-[3px] focus-within:ring-accent/40";
 ---
 
-<li
-  {...rest}
-  class:list={[baseClass, className]}
-  style={style}
->
+<li {...rest} class:list={[baseClass, className]} style={style}>
   <div class="flex items-start justify-between gap-4">
     <a
       href={`/projects/${project.slug}`}
@@ -73,10 +70,12 @@ const baseClass =
                 href={project.data.repoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                title="Repo"
+                title="Repository"
                 class="p-2 transition-colors hover:border-accent/30 hover:text-accent"
               >
-                <Github size={16} />
+                <span class="block h-4 w-4">
+                  <GithubIcon />
+                </span>
                 <span class="sr-only">Repository</span>
               </a>
             )}
