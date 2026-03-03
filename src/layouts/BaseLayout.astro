@@ -2,15 +2,17 @@
 import { cn } from "../lib/utils";
 import "../styles/global.css";
 import { ClientRouter } from "astro:transitions";
-import { ArrowLeftIcon, Github, Linkedin, Mail } from "@lucide/astro";
+import { ArrowLeftIcon, Mail } from "@lucide/astro";
+import GithubIcon from "@/assets/github.svg.astro";
+import LinkedinIcon from "@/assets/linkedin.svg.astro";
 
 const socialLinks = [
-  { href: "mailto:mail@schmidalex.de", label: "Mail", icon: Mail },
-  { href: "https://github.com/alexschmd", label: "GitHub", icon: Github },
+  { href: "mailto:mail@schmidalex.de", label: "Mail", icon: "mail" },
+  { href: "https://github.com/alexschmd", label: "GitHub", icon: "github" },
   {
     href: "https://www.linkedin.com/in/alexanderschmd",
     label: "LinkedIn",
-    icon: Linkedin,
+    icon: "linkedin",
   },
 ];
 
@@ -111,10 +113,19 @@ const isHomepage = Astro.url.pathname === "/";
                   class="text-muted transition-colors duration-200 hover:text-text"
                 >
                   {(() => {
-                    const Icon = link.icon;
                     return (
                       <>
-                        <Icon size={18} />
+                        {link.icon === "mail" ? (
+                          <Mail size={18} />
+                        ) : link.icon === "github" ? (
+                          <span class="block h-[18px] w-[18px] text-current [&>svg]:h-full [&>svg]:w-full">
+                            <GithubIcon />
+                          </span>
+                        ) : (
+                          <span class="block h-[18px] w-[18px] text-current [&>svg]:h-full [&>svg]:w-full">
+                            <LinkedinIcon />
+                          </span>
+                        )}
                         <span class="sr-only">{link.label}</span>
                       </>
                     );
