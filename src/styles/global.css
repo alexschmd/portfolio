@@ -31,6 +31,13 @@
   --color-text: #fafafa;
   --color-accent: #85cc23;
 
+  /* Weitere Farbkombination in Gelb */
+  --font-mono: "Halide Router", "SF Mono", ui-monospace, monospace;
+  --font-system:
+    -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter",
+    system-ui, sans-serif;
+  --color-accent: #ffd60a;
+
   /* semantic colors */
   --color-foreground: var(--color-text);
   --color-background: var(--color-void);
@@ -97,6 +104,94 @@
 
 html {
   scrollbar-gutter: stable;
+}
+
+/* Minimal Markdown typography (replacement for Tailwind Typography "prose") */
+.prose {
+  color: var(--color-subtle);
+  font-size: 0.95rem;
+  line-height: 1.75;
+}
+
+.prose :where(h1, h2, h3) {
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+  margin-top: 1.6em;
+  margin-bottom: 0.6em;
+}
+
+.prose :where(h1) {
+  font-size: 1.6rem;
+}
+
+.prose :where(h2) {
+  font-size: 1.25rem;
+}
+
+.prose :where(h3) {
+  font-size: 1.05rem;
+}
+
+.prose :where(p, ul, ol, pre, blockquote) {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+
+.prose :where(a) {
+  color: var(--color-text);
+  text-decoration: underline;
+  text-decoration-color: color-mix(
+    in oklab,
+    var(--color-accent) 55%,
+    transparent
+  );
+  text-underline-offset: 4px;
+}
+
+.prose :where(a:hover) {
+  text-decoration-color: color-mix(
+    in oklab,
+    var(--color-accent) 85%,
+    transparent
+  );
+}
+
+.prose :where(code) {
+  color: var(--color-text);
+  background: color-mix(in oklab, var(--color-surface) 85%, transparent);
+  border: 1px solid color-mix(in oklab, white 10%, transparent);
+  padding: 0.12em 0.35em;
+  border-radius: 0.4em;
+  font-size: 0.9em;
+}
+
+.prose :where(pre) {
+  background: color-mix(in oklab, var(--color-surface) 80%, transparent);
+  border: 1px solid color-mix(in oklab, white 8%, transparent);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.prose :where(pre code) {
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+.prose :where(ul, ol) {
+  padding-left: 1.25rem;
+}
+
+.prose :where(li) {
+  margin: 0.25rem 0;
+}
+
+.prose :where(blockquote) {
+  border-left: 2px solid
+    color-mix(in oklab, var(--color-accent) 35%, transparent);
+  padding-left: 1rem;
+  color: var(--color-muted);
 }
 
 @supports not (scrollbar-gutter: stable) {
