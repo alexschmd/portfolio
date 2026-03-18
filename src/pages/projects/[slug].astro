@@ -1,21 +1,27 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import ProjectTagIcons from "@/components/ProjectTagIcons.astro";
-import { ExternalLinkIcon, Github } from "@lucide/astro";
+import { ExternalLinkIcon } from "@lucide/astro";
+import GithubIcon from "@/assets/github.svg.astro";
 
-import { getEntry, render } from "astro:content";
+import { type CollectionEntry, render } from "astro:content";
+import { getPublishedProjects } from "@/lib/projects";
 
-const { slug } = Astro.params;
+export const prerender = true;
 
-if (!slug) {
-  return Astro.redirect("/404");
+type Props = {
+  project: CollectionEntry<"projects">;
+};
+
+export async function getStaticPaths() {
+  const projects = await getPublishedProjects();
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
 }
 
-const project = await getEntry("projects", slug);
-
-if (!project || project.data.draft) {
-  return Astro.redirect("/404");
-}
+const { project } = Astro.props as Props;
 
 const { Content } = await render(project);
 ---
@@ -58,7 +64,9 @@ const { Content } = await render(project);
                     title="Repository"
                     class="rounded-md p-2 text-muted transition-colors hover:text-accent outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
                   >
-                    <Github size={20} />
+                    <span class="block h-5 w-5">
+                      <GithubIcon />
+                    </span>
                     <span class="sr-only">Repository</span>
                   </a>
                 )}

@@ -1,24 +1,16 @@
 ---
-import "../styles/global.css";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import IndexLinkItem from "@/components/IndexLinkItem.astro";
-import { getCollection } from "astro:content";
 import ProjectListItem from "@/components/ProjectListItem.astro";
 import CurrentJobCard from "@/components/CurrentJobCard.astro";
 import ItNrwLogo from "@/assets/it-nrw.svg.astro";
+import { getLatestProjects } from "@/lib/projects";
 
 const siteTitle = "Alexander Schmid";
 const description =
   "Mein Portfolio gibt dir einen kleinen Einblick in meine bisherigen Projekte, Erfahrung und Werdegang.";
 
-const latestProjects = (await getCollection("projects"))
-  .filter((project) => !project.data.draft)
-  .sort((a, b) => {
-    const aTime = a.data.date ? a.data.date.getTime() : 0;
-    const bTime = b.data.date ? b.data.date.getTime() : 0;
-    return bTime - aTime;
-  })
-  .slice(0, 3);
+const latestProjects = await getLatestProjects(3);
 ---
 
 <BaseLayout title={siteTitle} description={description}>

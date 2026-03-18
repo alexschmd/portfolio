@@ -1,18 +1,12 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import ProjectListItem from "@/components/ProjectListItem.astro";
-import { getCollection } from "astro:content";
+import { getPublishedProjects } from "@/lib/projects";
 
 const siteTitle = "Projekte | Alexander Schmid";
 const description = "Meine Projekte";
 
-const projects = (await getCollection("projects"))
-  .filter((project) => !project.data.draft)
-  .sort((a, b) => {
-    const aTime = a.data.date ? a.data.date.getTime() : 0;
-    const bTime = b.data.date ? b.data.date.getTime() : 0;
-    return bTime - aTime;
-  });
+const projects = await getPublishedProjects();
 
 const projectsByYear = Object.groupBy(projects, (project) =>
   project.data.date ? String(project.data.date.getFullYear()) : "Ohne Datum",
