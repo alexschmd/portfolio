@@ -1,4 +1,6 @@
 ---
+import type { AstroComponentFactory } from "astro/runtime/server/index.js";
+
 const { tags } = Astro.props as { tags: string[] };
 
 const normalize = (value: string) =>
@@ -11,6 +13,7 @@ const aliases: Record<string, string> = {
   tailwind: "tailwindcss",
   tanstackstart: "tanstack",
   turoborepo: "turborepo",
+  turborepo: "turborepo",
 };
 
 const iconModules = import.meta.glob("../assets/*.svg.astro", {
@@ -24,9 +27,9 @@ const icons = Object.fromEntries(
         .split("/")
         .pop()
         ?.replace(/\.svg\.astro$/, "") ?? "";
-    return [normalize(name), (mod as any).default];
+    return [normalize(name), (mod as { default: AstroComponentFactory }).default];
   }),
-) as Record<string, any>;
+) as Record<string, AstroComponentFactory | undefined>;
 
 const getIcon = (tag: string) => {
   const key = aliases[normalize(tag)] ?? normalize(tag);
@@ -39,12 +42,20 @@ const getIcon = (tag: string) => {
     tags.map((tag) => {
       const Icon = getIcon(tag);
       return Icon ? (
-        <span
-          title={tag}
-          class="inline-flex items-center justify-center p-2 rounded-md text-subtle transition-colors group-hover:border-accent/20 group-hover:text-text hover:border-accent/30 hover:text-accent [&>svg]:h-4 [&>svg]:w-4 [&>svg]:fill-current"
-        >
-          <Icon />
-          <span class="sr-only">{tag}</span>
+        <span class="group/tag relative inline-flex">
+          <span
+            aria-label={tag}
+            class="inline-flex items-center justify-center rounded-md p-2 text-subtle transition-colors duration-200 group-hover:border-accent/20 group-hover:text-text group-hover/tag:text-accent [&>svg]:h-4 [&>svg]:w-4 [&>svg]:fill-current"
+          >
+            <Icon />
+            <span class="sr-only">{tag}</span>
+          </span>
+          <span
+            aria-hidden="true"
+            class="pointer-events-none absolute left-1/2 top-0 z-10 -translate-x-1/2 -translate-y-[calc(100%+0.35rem)] whitespace-nowrap rounded-md border border-white/10 bg-void/95 px-2 py-1 text-[11px] leading-none text-text opacity-0 shadow-lg transition-[opacity,transform] duration-200 group-hover/tag:-translate-x-1/2 group-hover/tag:-translate-y-[calc(100%+0.55rem)] group-hover/tag:opacity-100"
+          >
+            {tag}
+          </span>
         </span>
       ) : (
         <span

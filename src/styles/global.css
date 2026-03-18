@@ -29,14 +29,11 @@
   --color-muted: #525252;
   --color-subtle: #a3a3a3;
   --color-text: #fafafa;
-  --color-accent: #85cc23;
+  --color-accent: #ffd60a;
 
-  /* Weitere Farbkombination in Gelb */
-  --font-mono: "Halide Router", "SF Mono", ui-monospace, monospace;
   --font-system:
     -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter",
     system-ui, sans-serif;
-  --color-accent: #ffd60a;
 
   /* semantic colors */
   --color-foreground: var(--color-text);
@@ -49,6 +46,7 @@
   --animate-fade-in-up: fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-fade-in: fade-in 0.4s ease-out forwards;
   --animate-glow-pulse: glow-pulse 2s ease-in-out infinite;
+  --animate-icon-pop: icon-pop 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 
   @keyframes fade-in-up {
     0% {
@@ -77,6 +75,18 @@
     }
     50% {
       opacity: 0.8;
+    }
+  }
+
+  @keyframes icon-pop {
+    0% {
+      transform: scale(1) translateY(0);
+    }
+    60% {
+      transform: scale(1.14) translateY(-1px);
+    }
+    100% {
+      transform: scale(1.1) translateY(-1px);
     }
   }
 

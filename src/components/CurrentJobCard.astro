@@ -1,4 +1,6 @@
 ---
+import type { AstroComponentFactory } from "astro/runtime/server/index.js";
+
 interface Props {
   company: string;
   companyUrl?: string | null;
@@ -6,11 +8,16 @@ interface Props {
   start: string | Date;
   end?: string | Date | null;
   description: string;
-  Logo?: any;
+  Logo?: AstroComponentFactory;
   imageSrc?: string | null;
   imageAlt?: string;
   variant?: "full" | "compact";
 }
+
+const monthYearFormatter = new Intl.DateTimeFormat("de-DE", {
+  month: "short",
+  year: "numeric",
+});
 
 const {
   company,
@@ -23,9 +30,9 @@ const {
   imageSrc = null,
   imageAlt = "",
   variant = "full",
-} = Astro.props;
+} = Astro.props as Props;
 
-function toDate(value: string | Date): Date {
+function toDate(value: string | Date, fieldName: string): Date {
   if (value instanceof Date) return value;
 
   const trimmed = value.trim();
@@ -43,13 +50,11 @@ function toDate(value: string | Date): Date {
   const parsed = new Date(trimmed);
   if (!Number.isNaN(parsed.getTime())) return parsed;
 
-  return new Date();
+  throw new TypeError(`Invalid ${fieldName} date for CurrentJobCard: ${value}`);
 }
 
 function formatMonthYear(date: Date) {
-  return new Intl.DateTimeFormat("de-DE", { month: "short", year: "numeric" })
-    .format(date)
-    .replace(".", "");
+  return monthYearFormatter.format(date).replace(".", "");
 }
 
 function diffInMonths(from: Date, to: Date) {
@@ -77,16 +82,18 @@ function formatDuration(totalMonths: number) {
   return parts.join(" ");
 }
 
-const startDate = toDate(start);
-const endDate = end ? toDate(end) : null;
+const startDate = toDate(start, "start");
+const endDate = end ? toDate(end, "end") : null;
 const now = new Date();
 const durationMonths = diffInMonths(startDate, endDate ?? now);
 
 const rangeLabel = `${formatMonthYear(startDate)} – ${endDate ? formatMonthYear(endDate) : "Heute"}`;
 const durationLabel = formatDuration(durationMonths);
 const isCompact = variant === "compact";
+const companyName = company.trim();
+const logoAlt = imageAlt.trim();
 
-const fallbackText = company
+const fallbackText = companyName
   .split(" ")
   .filter(Boolean)
   .slice(0, 2)
@@ -97,16 +104,17 @@ const fallbackText = company
 <div class={`relative pl-8 ${isCompact ? "py-2" : "py-3"}`}>
   <span
     aria-hidden="true"
-    class="absolute bottom-0 left-2 top-0 w-px bg-accent/50"></span>
+    class="absolute bottom-0 left-2.5 top-0 w-px -translate-x-1/2 bg-accent/50"
+  ></span>
   <span
     aria-hidden="true"
-    class="absolute left-2 top-4 h-3.5 w-3.5 -translate-x-[6.5px] rounded-full border border-white/25 bg-void"
+    class="absolute left-2.5 top-4 h-3.5 w-3.5 -translate-x-1/2 rounded-full border border-white/25 bg-void"
   ></span>
 
   <div class="min-w-0">
-    <div class="text-xs tracking-wide text-muted">
+    <p class="text-xs tracking-wide text-muted">
       {rangeLabel} · {durationLabel}
-    </div>
+    </p>
 
     <div
       class={`mt-3 flex gap-3 ${isCompact ? "items-start" : "items-center"}`}
@@ -123,9 +131,10 @@ const fallbackText = company
             ) : imageSrc ? (
               <img
                 src={imageSrc}
-                alt={imageAlt}
+                alt={logoAlt}
                 class="h-full w-full object-cover"
                 loading="lazy"
+                decoding="async"
               />
             ) : (
               <div class="grid h-full w-full place-items-center bg-accent/10 text-xs font-medium text-accent">
@@ -137,24 +146,24 @@ const fallbackText = company
       </div>
 
       <div class="min-w-0 flex-1">
-        <div
+        <h3
           class={`min-w-0 font-medium text-text ${isCompact ? "text-base" : "text-xl leading-tight"}`}
         >
           {title}
-        </div>
+        </h3>
         {
           companyUrl ? (
             <a
               href={companyUrl}
               target="_blank"
               rel="noopener noreferrer"
-              title={`${company} öffnen`}
+              title={`${companyName} öffnen`}
               class="mt-1 inline-block max-w-full truncate text-sm text-subtle underline decoration-dashed decoration-transparent underline-offset-4 transition-[color,text-decoration-color] hover:text-text hover:decoration-accent"
             >
-              {company}
+              {companyName}
             </a>
           ) : (
-            <div class="mt-1 truncate text-sm text-subtle">{company}</div>
+            <p class="mt-1 truncate text-sm text-subtle">{companyName}</p>
           )
         }
       </div>
