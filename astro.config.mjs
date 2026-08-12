@@ -6,23 +6,19 @@ import sitemap from "@astrojs/sitemap";
 
 export default defineConfig({
   output: "server",
-  site: "https://alexschmid.dev",
+  site: "https://schmidalex.de",
   integrations: [sitemap()],
   adapter: node({
     mode: "standalone",
   }),
   redirects: {
-    "/about": {
-      status: 302,
-      destination: "/tba",
-    },
     "/contact": {
       status: 302,
       destination: "/tba",
     },
   },
   server: {
-    allowedHosts: ["schmidalex.de", "alexschmid.dev"],
+    allowedHosts: ["schmidalex.de", "alexschmid.dev", "schmd.dev"],
   },
   vite: {
     plugins: [/** @type {any} */ (tailwindcss())],

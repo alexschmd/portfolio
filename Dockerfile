@@ -1,19 +1,15 @@
-FROM oven/bun:1 AS builder
+FROM node:lts AS runtime
 WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
 
 COPY . .
-RUN bun install
-RUN bun ./node_modules/astro/astro.js build
-
-FROM node:lts-alpine AS runtime
-WORKDIR /app
+RUN npm run build
 
 ENV HOST=0.0.0.0
 ENV PORT=4321
-EXPOSE 4321
 
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
+EXPOSE 4321
 
 CMD ["node", "./dist/server/entry.mjs"]
