@@ -3,7 +3,7 @@ WORKDIR /app
 
 COPY . .
 RUN bun install
-RUN bun run build
+RUN bun ./node_modules/astro/astro.js build
 
 FROM node:lts-alpine AS runtime
 WORKDIR /app
