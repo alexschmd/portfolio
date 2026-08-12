@@ -18,7 +18,7 @@ export default defineConfig({
     },
   },
   server: {
-    allowedHosts: ["schmidalex.de", "alexschmid.dev", "schmd.dev"],
+    allowedHosts: ["schmidalex.de", "alexschmid.dev", ".apps.schmd.dev"],
   },
   vite: {
     plugins: [/** @type {any} */ (tailwindcss())],
