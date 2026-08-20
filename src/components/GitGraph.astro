@@ -1,0 +1,197 @@
+---
+import { GIT_GRAPH_BRANCH_COLORS as colors } from "../lib/gitGraphPalette";
+
+const [blue, purple, pink, red, orange, green, teal] = colors;
+const startYear = 2015;
+const endYear = new Date().getFullYear();
+const top = 100;
+const yearGap = 240;
+const bottom = top + (endYear - startYear) * yearGap + 180;
+const y = (year: number, offset = 0) => top + (year - startYear) * yearGap + offset;
+const years = Array.from({ length: endYear - startYear + 1 }, (_, index) => startYear + index);
+
+const branches = [
+  { label: "school", color: purple, x: 100, start: y(2015, 40), end: y(2023, 90), merged: true },
+  { label: "internship", color: pink, x: 155, start: y(2021, 70), end: y(2021, 170), merged: true },
+  { label: "TZ", color: teal, x: 210, start: y(2021, 15), end: bottom, merged: false },
+  { label: "messdiener", color: green, x: 265, start: y(2023, 20), end: bottom, merged: false },
+  { label: "work", color: red, x: 320, start: y(2023, 130), end: bottom, merged: false },
+  { label: "uni", color: orange, x: 375, start: y(2023, 155), end: bottom, merged: false },
+  { label: "sternsinger", color: purple, x: 430, start: y(2024, 35), end: bottom, merged: false },
+];
+
+const mergedBranchInset = (branch: (typeof branches)[number]) =>
+  Math.min(90, (branch.end - branch.start) / 3);
+const branchStartNodeY = (branch: (typeof branches)[number]) =>
+  branch.start + (branch.merged ? mergedBranchInset(branch) : 90);
+const branchEndNodeY = (branch: (typeof branches)[number]) =>
+  branch.merged ? branch.end - mergedBranchInset(branch) : branch.end - 20;
+const isShortMergedBranch = (branch: (typeof branches)[number]) =>
+  branch.merged && branch.end - branch.start < 180;
+const branchLabelX = (branch: (typeof branches)[number]) =>
+  isShortMergedBranch(branch) ? branch.x : branch.x + 14;
+const branchLabelY = (branch: (typeof branches)[number]) =>
+  isShortMergedBranch(branch)
+    ? branchEndNodeY(branch) + 20
+    : branchStartNodeY(branch) + 4;
+const branchLabelWidth = (branch: (typeof branches)[number]) =>
+  branch.label.length * 7.2 + 16;
+const branchLabelBackgroundX = (branch: (typeof branches)[number]) =>
+  isShortMergedBranch(branch)
+    ? branchLabelX(branch) - branchLabelWidth(branch) / 2
+    : branchLabelX(branch) - 8;
+const branchPath = (branch: (typeof branches)[number]) => {
+  if (!branch.merged) {
+    return `M40 ${branch.start} C40 ${branch.start + 42} ${branch.x} ${branch.start + 42} ${branch.x} ${branch.start + 90} V${branch.end}`;
+  }
+
+  const inset = mergedBranchInset(branch);
+  const curve = Math.min(42, inset);
+  const outboundY = branch.start + inset;
+  const inboundY = branch.end - inset;
+
+  return `M40 ${branch.start} C40 ${branch.start + curve} ${branch.x} ${outboundY - curve} ${branch.x} ${outboundY} V${inboundY} C${branch.x} ${inboundY + curve} 40 ${branch.end - curve} 40 ${branch.end}`;
+};
+---
+
+<div class="git-graph" data-git-graph aria-label="Mein Werdegang als Git-Graph" style={`--graph-height:${bottom}px`}>
+  <svg viewBox={`0 0 560 ${bottom}`} width="560" height={bottom} aria-hidden="true">
+    <g fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+      <path data-draw-path stroke={blue} d={`M40 0 V${bottom}`} />
+
+      {branches.map((branch) => (
+        <path
+          data-draw-path
+          stroke={branch.color}
+          d={branchPath(branch)}
+        />
+      ))}
+    </g>
+
+    <g stroke="#050505" stroke-width="4">
+      {years.map((year) => <circle data-reveal-y={y(year)} cx="40" cy={y(year)} r="8" fill={blue} />)}
+      {branches.map((branch) => (
+        <circle
+          data-reveal-y={branch.start}
+          cx="40"
+          cy={branch.start}
+          r="6"
+          fill="#050505"
+          stroke={branch.color}
+          stroke-width="2.5"
+        />
+      ))}
+      {branches.filter((branch) => branch.merged).map((branch) => (
+        <circle
+          data-reveal-y={branch.end}
+          cx="40"
+          cy={branch.end}
+          r="6"
+          fill="#050505"
+          stroke={branch.color}
+          stroke-width="2.5"
+        />
+      ))}
+      {branches.map((branch) => (
+        <>
+          <circle data-reveal-y={branchStartNodeY(branch)} cx={branch.x} cy={branchStartNodeY(branch)} r="8" fill={branch.color} />
+          <circle data-reveal-y={branchEndNodeY(branch)} cx={branch.x} cy={branchEndNodeY(branch)} r="8" fill={branch.color} />
+        </>
+      ))}
+    </g>
+
+    <g class="year-labels">
+      {years.map((year) => <text data-reveal-y={y(year)} x="16" y={y(year) + 4} text-anchor="end">{year}</text>)}
+    </g>
+
+    <g class="branch-labels">
+      {branches.map((branch) => (
+        <g data-reveal-y={branchLabelY(branch)}>
+          <rect
+            class="branch-label-background"
+            x={branchLabelBackgroundX(branch)}
+            y={branchLabelY(branch) - 16}
+            width={branchLabelWidth(branch)}
+            height="24"
+            rx="6"
+          />
+          <text
+            x={branchLabelX(branch)}
+            y={branchLabelY(branch)}
+            text-anchor={isShortMergedBranch(branch) ? "middle" : "start"}
+            fill={branch.color}
+          >
+            {branch.label}
+          </text>
+        </g>
+      ))}
+    </g>
+  </svg>
+</div>
+
+<script>
+  const setupGitGraph = () => {
+    const graph = document.querySelector<HTMLElement>("[data-git-graph]");
+    if (!graph || graph.dataset.ready === "true") return;
+
+    graph.dataset.ready = "true";
+    let frame = 0;
+
+    const update = () => {
+      frame = 0;
+      const bounds = graph.getBoundingClientRect();
+      const isAtPageEnd =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 1;
+      const drawnHeight = isAtPageEnd
+        ? bounds.height
+        : Math.max(
+            0,
+            Math.min(bounds.height, window.innerHeight * 0.96 - bounds.top),
+          );
+
+      graph.querySelectorAll<SVGPathElement>("[data-draw-path]").forEach((path) => {
+        const length = path.getTotalLength();
+        const box = path.getBBox();
+        const progress = box.height === 0
+          ? Number(drawnHeight >= box.y)
+          : Math.max(0, Math.min(1, (drawnHeight - box.y) / box.height));
+        path.style.strokeDasharray = `${length}`;
+        path.style.strokeDashoffset = `${length * (1 - progress)}`;
+      });
+
+      graph.querySelectorAll<SVGElement>("[data-reveal-y]").forEach((element) => {
+        const elementY = Number(element.dataset.revealY ?? 0);
+        element.classList.toggle("is-visible", elementY <= drawnHeight);
+      });
+    };
+
+    const requestUpdate = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate, { passive: true });
+  };
+
+  setupGitGraph();
+  document.addEventListener("astro:page-load", setupGitGraph);
+</script>
+
+<style>
+  .git-graph { position: relative; width: 560px; max-width: 100%; height: var(--graph-height); }
+  svg { display: block; width: 560px; height: var(--graph-height); overflow: visible; }
+  [data-draw-path] { will-change: stroke-dashoffset; }
+  [data-reveal-y] { opacity: 0; transition: opacity 120ms ease-out; }
+  [data-reveal-y].is-visible { opacity: 1; }
+  .year-labels { fill: var(--color-muted); font-family: var(--font-mono); font-size: 11px; }
+  .branch-labels { font-family: var(--font-mono); font-size: 12px; }
+  .branch-label-background {
+    fill: var(--color-void);
+    fill-opacity: 0.95;
+    stroke: color-mix(in oklab, white 10%, transparent);
+    filter: drop-shadow(0 8px 8px rgb(0 0 0 / 0.35));
+  }
+</style>
