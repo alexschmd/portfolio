@@ -34,6 +34,10 @@ const branchLabelY = (branch: (typeof branches)[number]) =>
   isShortMergedBranch(branch)
     ? branchEndNodeY(branch) + 20
     : branchStartNodeY(branch) + 4;
+const branchLabelRevealY = (branch: (typeof branches)[number]) =>
+  isShortMergedBranch(branch)
+    ? branchEndNodeY(branch)
+    : branchStartNodeY(branch);
 const branchLabelWidth = (branch: (typeof branches)[number]) =>
   branch.label.length * 7.2 + 16;
 const branchLabelBackgroundX = (branch: (typeof branches)[number]) =>
@@ -56,7 +60,19 @@ const branchPath = (branch: (typeof branches)[number]) => {
 
 <div class="git-graph" data-git-graph aria-label="Mein Werdegang als Git-Graph" style={`--graph-height:${bottom}px`}>
   <svg viewBox={`0 0 560 ${bottom}`} width="560" height={bottom} aria-hidden="true">
-    <g fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <defs>
+      <clipPath id="graph-progress-clip">
+        <rect data-progress-clip x="0" y="0" width="560" height="0" />
+      </clipPath>
+    </defs>
+
+    <g
+      fill="none"
+      stroke-width="4"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      clip-path="url(#graph-progress-clip)"
+    >
       <path data-draw-path stroke={blue} d={`M40 0 V${bottom}`} />
 
       {branches.map((branch) => (
@@ -92,10 +108,10 @@ const branchPath = (branch: (typeof branches)[number]) => {
           stroke-width="2.5"
         />
       ))}
-      {branches.map((branch) => (
+      {branches.map((branch, branchIndex) => (
         <>
-          <circle data-reveal-y={branchStartNodeY(branch)} cx={branch.x} cy={branchStartNodeY(branch)} r="8" fill={branch.color} />
-          <circle data-reveal-y={branchEndNodeY(branch)} cx={branch.x} cy={branchEndNodeY(branch)} r="8" fill={branch.color} />
+          <circle data-reveal-path={branchIndex} data-reveal-path-y={branchStartNodeY(branch)} cx={branch.x} cy={branchStartNodeY(branch)} r="8" fill={branch.color} />
+          <circle data-reveal-path={branchIndex} data-reveal-path-y={branchEndNodeY(branch)} cx={branch.x} cy={branchEndNodeY(branch)} r="8" fill={branch.color} />
         </>
       ))}
     </g>
@@ -105,8 +121,8 @@ const branchPath = (branch: (typeof branches)[number]) => {
     </g>
 
     <g class="branch-labels">
-      {branches.map((branch) => (
-        <g data-reveal-y={branchLabelY(branch)}>
+      {branches.map((branch, branchIndex) => (
+        <g data-reveal-path={branchIndex} data-reveal-path-y={branchLabelRevealY(branch)}>
           <rect
             class="branch-label-background"
             x={branchLabelBackgroundX(branch)}
@@ -150,19 +166,62 @@ const branchPath = (branch: (typeof branches)[number]) => {
             Math.min(bounds.height, window.innerHeight * 0.96 - bounds.top),
           );
 
-      graph.querySelectorAll<SVGPathElement>("[data-draw-path]").forEach((path) => {
+      graph
+        .querySelector<SVGRectElement>("[data-progress-clip]")
+        ?.setAttribute("height", String(drawnHeight));
+
+      const paths = Array.from(
+        graph.querySelectorAll<SVGPathElement>("[data-draw-path]"),
+      );
+      const revealedLengths: number[] = [];
+
+      paths.forEach((path) => {
         const length = path.getTotalLength();
         const box = path.getBBox();
         const progress = box.height === 0
           ? Number(drawnHeight >= box.y)
           : Math.max(0, Math.min(1, (drawnHeight - box.y) / box.height));
+        const revealedLength = length * progress;
+
         path.style.strokeDasharray = `${length}`;
-        path.style.strokeDashoffset = `${length * (1 - progress)}`;
+        path.style.strokeDashoffset = `${length - revealedLength}`;
+        revealedLengths.push(revealedLength);
       });
 
       graph.querySelectorAll<SVGElement>("[data-reveal-y]").forEach((element) => {
         const elementY = Number(element.dataset.revealY ?? 0);
         element.classList.toggle("is-visible", elementY <= drawnHeight);
+      });
+
+      graph.querySelectorAll<SVGElement>("[data-reveal-path]").forEach((element) => {
+        const branchIndex = Number(element.dataset.revealPath ?? 0);
+        const path = paths[branchIndex + 1];
+        if (!path) return;
+
+        let targetLength = Number(element.dataset.revealLength);
+        if (!Number.isFinite(targetLength)) {
+          const targetY = Number(element.dataset.revealPathY ?? 0);
+          let low = 0;
+          let high = path.getTotalLength();
+
+          for (let step = 0; step < 14; step++) {
+            const middle = (low + high) / 2;
+            if (path.getPointAtLength(middle).y <= targetY) {
+              low = middle;
+            } else {
+              high = middle;
+            }
+          }
+
+          targetLength = low;
+          element.dataset.revealLength = String(targetLength);
+        }
+
+        element.classList.toggle(
+          "is-visible",
+          Number(element.dataset.revealPathY ?? 0) <= drawnHeight &&
+            revealedLengths[branchIndex + 1] >= targetLength,
+        );
       });
     };
 
@@ -183,15 +242,13 @@ const branchPath = (branch: (typeof branches)[number]) => {
 <style>
   .git-graph { position: relative; width: 560px; max-width: 100%; height: var(--graph-height); }
   svg { display: block; width: 560px; height: var(--graph-height); overflow: visible; }
-  [data-draw-path] { will-change: stroke-dashoffset; }
-  [data-reveal-y] { opacity: 0; transition: opacity 120ms ease-out; }
-  [data-reveal-y].is-visible { opacity: 1; }
+  :is([data-reveal-y], [data-reveal-path]) { opacity: 0; transition: opacity 120ms ease-out; }
+  :is([data-reveal-y], [data-reveal-path]).is-visible { opacity: 1; }
   .year-labels { fill: var(--color-muted); font-family: var(--font-mono); font-size: 11px; }
   .branch-labels { font-family: var(--font-mono); font-size: 12px; }
   .branch-label-background {
     fill: var(--color-void);
     fill-opacity: 0.95;
     stroke: color-mix(in oklab, white 10%, transparent);
-    filter: drop-shadow(0 8px 8px rgb(0 0 0 / 0.35));
   }
 </style>
