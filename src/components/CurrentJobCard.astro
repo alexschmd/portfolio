@@ -112,9 +112,16 @@ const fallbackText = companyName
   ></span>
 
   <div class="min-w-0">
-    <p class="text-xs tracking-wide text-muted">
-      {rangeLabel} · {durationLabel}
-    </p>
+    <p class="sr-only">{rangeLabel}, {durationLabel}</p>
+    <div
+      aria-hidden="true"
+      class="job-meta-switch h-4 overflow-hidden text-xs leading-4 tracking-wide text-muted"
+    >
+      <div class="job-meta-track">
+        <span class="block h-4">{rangeLabel}</span>
+        <span class="block h-4">{durationLabel}</span>
+      </div>
+    </div>
 
     <div
       class={`mt-3 flex gap-3 ${isCompact ? "items-start" : "items-center"}`}
@@ -176,3 +183,36 @@ const fallbackText = companyName
     </p>
   </div>
 </div>
+
+<style>
+  .job-meta-track {
+    animation: job-meta-cycle 10s cubic-bezier(0.77, 0, 0.175, 1) infinite;
+  }
+
+  .job-meta-switch:hover .job-meta-track {
+    animation-play-state: paused;
+  }
+
+  @keyframes job-meta-cycle {
+    0%,
+    43% {
+      transform: translateY(0);
+    }
+
+    46%,
+    92% {
+      transform: translateY(-1rem);
+    }
+
+    95%,
+    100% {
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .job-meta-track {
+      animation: none;
+    }
+  }
+</style>

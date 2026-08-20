@@ -55,7 +55,7 @@ const latestProjects = await getLatestProjects(3);
         actionText="Alle anzeigen"
         style="animation-delay: 0.3s;"
       >
-        <ul class="flex flex-col gap-4">
+        <ul>
           {
             latestProjects.map((project) => (
               <ProjectListItem project={project} />

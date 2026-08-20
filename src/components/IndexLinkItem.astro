@@ -19,7 +19,7 @@ const { href, label, actionText = "Alle anzeigen", style } = Astro.props;
     <span class="mt-1 shrink-0">
       <a
         href={href}
-        class="relative inline-flex items-center gap-1 rounded-sm text-sm text-muted transition-all duration-200 hover:translate-x-0.5 hover:text-text after:content-[''] after:absolute after:-bottom-1 after:-left-1 after:h-px after:w-0 after:bg-accent/40 after:transition-all after:duration-300 after:ease-out hover:after:w-[calc(100%+0.25rem)]"
+        class="relative inline-flex items-center gap-1 rounded-sm text-sm text-muted transition-colors duration-200 hover:text-text after:content-[''] after:absolute after:-bottom-1 after:-left-1 after:h-px after:w-0 after:bg-accent/40 after:transition-[width] after:duration-200 after:ease-out hover:after:w-[calc(100%+0.25rem)]"
       >
         {actionText}
         <ChevronRight size={16} />
