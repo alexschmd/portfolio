@@ -37,7 +37,7 @@ const getIcon = (tag: string) => {
 };
 ---
 
-<div class="flex flex-wrap items-center gap-0 -m-2">
+<div class="relative z-10 flex flex-wrap items-center gap-0 -m-2">
   {
     tags.map((tag) => {
       const Icon = getIcon(tag);
