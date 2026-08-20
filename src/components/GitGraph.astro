@@ -321,21 +321,43 @@ const branchPath = (branch: (typeof branches)[number]) => {
     let activeTrigger: SVGElement | null = null;
     let closeTimer = 0;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let activeTriggerNextSibling: ChildNode | null = null;
+
+    const restoreActiveTriggerOrder = () => {
+      if (!activeTrigger?.parentNode) return;
+      activeTrigger.parentNode.insertBefore(
+        activeTrigger,
+        activeTriggerNextSibling,
+      );
+      activeTriggerNextSibling = null;
+    };
 
     const closeBranchPopover = (restoreFocus = false) => {
       if (!popover || popover.hidden) return;
       popover.dataset.state = "closed";
+      activeTrigger?.classList.remove("is-expanded");
       activeTrigger?.setAttribute("aria-expanded", "false");
       window.clearTimeout(closeTimer);
       closeTimer = window.setTimeout(
         () => {
           popover.hidden = true;
-          activeTrigger?.classList.remove("is-expanded");
+          restoreActiveTriggerOrder();
           if (restoreFocus) activeTrigger?.focus();
           activeTrigger = null;
         },
-        reducedMotion.matches ? 0 : 240,
+        reducedMotion.matches ? 0 : 260,
       );
+    };
+
+    const hideBranchPopoverImmediately = () => {
+      if (!popover || popover.hidden) return;
+      window.clearTimeout(closeTimer);
+      popover.dataset.state = "closed";
+      popover.hidden = true;
+      activeTrigger?.classList.remove("is-expanded");
+      activeTrigger?.setAttribute("aria-expanded", "false");
+      restoreActiveTriggerOrder();
+      activeTrigger = null;
     };
 
     const openBranchPopover = (trigger: SVGElement) => {
@@ -343,6 +365,7 @@ const branchPath = (branch: (typeof branches)[number]) => {
       window.clearTimeout(closeTimer);
       activeTrigger?.classList.remove("is-expanded");
       activeTrigger?.setAttribute("aria-expanded", "false");
+      restoreActiveTriggerOrder();
 
       const title = popover.querySelector<HTMLElement>(
         "[data-branch-popover-title]",
@@ -371,8 +394,8 @@ const branchPath = (branch: (typeof branches)[number]) => {
       );
 
       popover.style.width = `${width}px`;
-      popover.style.left = `${left}px`;
-      popover.style.top = `${triggerBounds.top}px`;
+      popover.style.left = `${left + window.scrollX}px`;
+      popover.style.top = `${triggerBounds.top + window.scrollY}px`;
       popover.style.setProperty("--tag-height", `${triggerBounds.height}px`);
       popover.hidden = false;
       popover.dataset.state = "closed";
@@ -400,16 +423,24 @@ const branchPath = (branch: (typeof branches)[number]) => {
       );
 
       activeTrigger = trigger;
-      trigger.classList.add("is-expanded");
+      activeTriggerNextSibling = trigger.nextSibling;
+      trigger.parentNode?.appendChild(trigger);
       trigger.setAttribute("aria-expanded", "true");
+      // Commit the small, reordered tag before starting the geometry transition.
+      trigger.getBoundingClientRect();
       window.requestAnimationFrame(() => {
+        if (activeTrigger !== trigger) return;
+        trigger.classList.add("is-expanded");
         popover.dataset.state = "open";
       });
     };
 
-    const toggleBranchPopover = (trigger: SVGElement) => {
+    const toggleBranchPopover = (
+      trigger: SVGElement,
+      restoreFocusOnClose = false,
+    ) => {
       if (activeTrigger === trigger && popover?.dataset.state === "open") {
-        closeBranchPopover(true);
+        closeBranchPopover(restoreFocusOnClose);
         return;
       }
 
@@ -426,7 +457,7 @@ const branchPath = (branch: (typeof branches)[number]) => {
         trigger.addEventListener("keydown", (event) => {
           if (event.key !== "Enter" && event.key !== " ") return;
           event.preventDefault();
-          toggleBranchPopover(trigger);
+          toggleBranchPopover(trigger, true);
         });
       });
 
@@ -434,9 +465,6 @@ const branchPath = (branch: (typeof branches)[number]) => {
     document.addEventListener("click", () => closeBranchPopover());
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape") closeBranchPopover(true);
-    });
-    window.addEventListener("scroll", () => closeBranchPopover(), {
-      passive: true,
     });
     window.addEventListener("resize", () => closeBranchPopover(), {
       passive: true,
@@ -517,6 +545,10 @@ const branchPath = (branch: (typeof branches)[number]) => {
               revealedLengths[branchIndex + 1] >= targetLength,
           );
         });
+
+      if (activeTrigger && !activeTrigger.classList.contains("is-visible")) {
+        hideBranchPopoverImmediately();
+      }
     };
 
     const requestUpdate = () => {
@@ -574,36 +606,34 @@ const branchPath = (branch: (typeof branches)[number]) => {
   .branch-label-trigger.is-expanded .branch-label-background {
     width: var(--expanded-tag-width);
     height: var(--expanded-tag-height);
-    stroke: color-mix(in oklab, white 12%, transparent);
   }
   .branch-label-background {
     fill: var(--color-void);
     fill-opacity: 0.95;
     stroke: color-mix(in oklab, white 10%, transparent);
     transition:
-      width 240ms cubic-bezier(0.23, 1, 0.32, 1),
-      height 240ms cubic-bezier(0.23, 1, 0.32, 1),
-      stroke 160ms ease-out;
+      width 260ms cubic-bezier(0.32, 0.72, 0, 1),
+      height 260ms cubic-bezier(0.32, 0.72, 0, 1);
   }
   .branch-popover {
     --morph-right: 0px;
     --morph-bottom: 0px;
     --tag-height: 24px;
     box-sizing: border-box;
-    position: fixed;
+    position: absolute;
     z-index: 80;
     overflow: hidden;
     pointer-events: none;
     user-select: none;
-    padding: calc(var(--tag-height) + 0.7rem) 0.75rem 0.75rem;
+    padding: calc(var(--tag-height) - 0.25rem) 0.5rem 0.5rem;
     color: var(--color-text);
     border: 0;
     border-radius: 0.4rem;
     background: transparent;
     transform-origin: top left;
     transition:
-      clip-path 240ms cubic-bezier(0.23, 1, 0.32, 1),
-      border-radius 240ms cubic-bezier(0.23, 1, 0.32, 1);
+      clip-path 260ms cubic-bezier(0.32, 0.72, 0, 1),
+      border-radius 260ms cubic-bezier(0.32, 0.72, 0, 1);
   }
   .branch-popover[data-state="closed"] {
     clip-path: inset(0 var(--morph-right) var(--morph-bottom) 0 round 0.4rem);
@@ -639,15 +669,10 @@ const branchPath = (branch: (typeof branches)[number]) => {
     text-transform: uppercase;
   }
   .branch-popover p {
-    margin-top: 0.55rem;
+    margin-top: 0.25rem;
     color: var(--color-subtle);
     font-size: 0.78rem;
     line-height: 1.65;
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .branch-label-trigger:hover .branch-label-background {
-      stroke: color-mix(in oklab, white 24%, transparent);
-    }
   }
   @media (prefers-reduced-motion: reduce) {
     .branch-label-trigger,
