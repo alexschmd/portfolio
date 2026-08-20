@@ -93,7 +93,7 @@ const canonicalUrl = Astro.site
             <div class="flex justify-center">
               <a
                 href={backToLink.href}
-                class="ui-ring-accent pointer-events-auto group inline-flex items-center justify-center gap-2 rounded-md border border-white/10 bg-void/70 px-3 py-2 text-muted backdrop-blur transition-all duration-200 hover:border-accent/30 hover:bg-surface hover:text-text hover:shadow-xs focus-visible:border-accent/40"
+                class="pointer-events-auto group inline-flex items-center justify-center gap-2 rounded-md border border-white/10 bg-void/70 px-3 py-2 text-muted outline-none backdrop-blur transition-[color,background-color,border-color,box-shadow] duration-200 hover:border-white/20 hover:bg-surface hover:text-text hover:shadow-xs focus-visible:border-accent/40 focus-visible:ring-[3px] focus-visible:ring-accent/40"
               >
                 <ArrowLeftIcon class="transition-transform duration-200 group-hover:-translate-x-0.5" />
                 <span class="text-sm tracking-wide">{backToLink.text}</span>
