@@ -7,17 +7,98 @@ const endYear = new Date().getFullYear();
 const top = 100;
 const yearGap = 240;
 const bottom = top + (endYear - startYear) * yearGap + 180;
-const y = (year: number, offset = 0) => top + (year - startYear) * yearGap + offset;
-const years = Array.from({ length: endYear - startYear + 1 }, (_, index) => startYear + index);
+const y = (year: number, offset = 0) =>
+  top + (year - startYear) * yearGap + offset;
+const years = Array.from(
+  { length: endYear - startYear + 1 },
+  (_, index) => startYear + index,
+);
 
 const branches = [
-  { label: "school", color: purple, x: 100, start: y(2015, 40), end: y(2023, 90), merged: true },
-  { label: "internship", color: pink, x: 155, start: y(2021, 70), end: y(2021, 170), merged: true },
-  { label: "TZ", color: teal, x: 210, start: y(2021, 15), end: bottom, merged: false },
-  { label: "messdiener", color: green, x: 265, start: y(2023, 20), end: bottom, merged: false },
-  { label: "work", color: red, x: 320, start: y(2023, 130), end: bottom, merged: false },
-  { label: "uni", color: orange, x: 375, start: y(2023, 155), end: bottom, merged: false },
-  { label: "sternsinger", color: purple, x: 430, start: y(2024, 35), end: bottom, merged: false },
+  {
+    label: "school",
+    title: "Schule",
+    period: "2015–2023",
+    description:
+      "Mein schulischer Weg bis zum Abitur – mit den ersten Projekten und dem Einstieg in die Softwareentwicklung.",
+    color: purple,
+    x: 100,
+    start: y(2015, 40),
+    end: y(2023, 90),
+    merged: true,
+  },
+  {
+    label: "internship",
+    title: "Praktikum",
+    period: "2021",
+    description:
+      "Ein erster konzentrierter Einblick in den beruflichen Alltag und die praktische Arbeit außerhalb der Schule.",
+    color: pink,
+    x: 155,
+    start: y(2021, 70),
+    end: y(2021, 170),
+    merged: true,
+  },
+  {
+    label: "TZ",
+    title: "Technisches Zeichnen",
+    period: "Seit 2021",
+    description:
+      "Ein fortlaufender Weg zwischen technischem Verständnis, präziser Planung und praktischer Umsetzung.",
+    color: teal,
+    x: 210,
+    start: y(2021, 15),
+    end: bottom,
+    merged: false,
+  },
+  {
+    label: "messdiener",
+    title: "Messdiener",
+    period: "Seit 2023",
+    description:
+      "Ehrenamtliches Engagement, Gemeinschaft und die Verantwortung für gemeinsame Aktionen und Veranstaltungen.",
+    color: green,
+    x: 265,
+    start: y(2023, 20),
+    end: bottom,
+    merged: false,
+  },
+  {
+    label: "work",
+    title: "Beruf",
+    period: "Seit 2023",
+    description:
+      "Meine berufliche Entwicklung in der Softwareentwicklung und die Arbeit an echten Produkten und Prozessen.",
+    color: red,
+    x: 320,
+    start: y(2023, 130),
+    end: bottom,
+    merged: false,
+  },
+  {
+    label: "uni",
+    title: "Studium",
+    period: "Seit 2023",
+    description:
+      "Mein Studium als fachliche Ergänzung zur Praxis – mit neuen Perspektiven auf Informatik und Softwareentwicklung.",
+    color: orange,
+    x: 375,
+    start: y(2023, 155),
+    end: bottom,
+    merged: false,
+  },
+  {
+    label: "sternsinger",
+    title: "Sternsinger",
+    period: "Seit 2024",
+    description:
+      "Organisation und Unterstützung der Sternsinger-Aktion als weiterer Teil meines ehrenamtlichen Engagements.",
+    color: purple,
+    x: 430,
+    start: y(2024, 35),
+    end: bottom,
+    merged: false,
+  },
 ];
 
 const mergedBranchInset = (branch: (typeof branches)[number]) =>
@@ -58,11 +139,21 @@ const branchPath = (branch: (typeof branches)[number]) => {
 };
 ---
 
-<div class="git-graph" data-git-graph aria-label="Mein Werdegang als Git-Graph" style={`--graph-height:${bottom}px`}>
-  <svg viewBox={`0 0 560 ${bottom}`} width="560" height={bottom} aria-hidden="true">
+<div
+  class="git-graph"
+  data-git-graph
+  aria-label="Mein Werdegang als Git-Graph"
+  style={`--graph-height:${bottom}px`}
+>
+  <svg
+    viewBox={`0 0 560 ${bottom}`}
+    width="560"
+    height={bottom}
+    aria-hidden="true"
+  >
     <defs>
       <clipPath id="graph-progress-clip">
-        <rect data-progress-clip x="0" y="0" width="560" height="0" />
+        <rect data-progress-clip x="0" y="0" width="560" height="0"></rect>
       </clipPath>
     </defs>
 
@@ -73,77 +164,149 @@ const branchPath = (branch: (typeof branches)[number]) => {
       stroke-linejoin="round"
       clip-path="url(#graph-progress-clip)"
     >
-      <path data-draw-path stroke={blue} d={`M40 0 V${bottom}`} />
+      <path data-draw-path stroke={blue} d={`M40 0 V${bottom}`}></path>
 
-      {branches.map((branch) => (
-        <path
-          data-draw-path
-          stroke={branch.color}
-          d={branchPath(branch)}
-        />
-      ))}
+      {
+        branches.map((branch) => (
+          <path data-draw-path stroke={branch.color} d={branchPath(branch)} />
+        ))
+      }
     </g>
 
     <g stroke="#050505" stroke-width="4">
-      {years.map((year) => <circle data-reveal-y={y(year)} cx="40" cy={y(year)} r="8" fill={blue} />)}
-      {branches.map((branch) => (
-        <circle
-          data-reveal-y={branch.start}
-          cx="40"
-          cy={branch.start}
-          r="6"
-          fill="#050505"
-          stroke={branch.color}
-          stroke-width="2.5"
-        />
-      ))}
-      {branches.filter((branch) => branch.merged).map((branch) => (
-        <circle
-          data-reveal-y={branch.end}
-          cx="40"
-          cy={branch.end}
-          r="6"
-          fill="#050505"
-          stroke={branch.color}
-          stroke-width="2.5"
-        />
-      ))}
-      {branches.map((branch, branchIndex) => (
-        <>
-          <circle data-reveal-path={branchIndex} data-reveal-path-y={branchStartNodeY(branch)} cx={branch.x} cy={branchStartNodeY(branch)} r="8" fill={branch.color} />
-          <circle data-reveal-path={branchIndex} data-reveal-path-y={branchEndNodeY(branch)} cx={branch.x} cy={branchEndNodeY(branch)} r="8" fill={branch.color} />
-        </>
-      ))}
+      {
+        years.map((year) => (
+          <circle
+            data-reveal-y={y(year)}
+            cx="40"
+            cy={y(year)}
+            r="8"
+            fill={blue}
+          />
+        ))
+      }
+      {
+        branches.map((branch) => (
+          <circle
+            data-reveal-y={branch.start}
+            cx="40"
+            cy={branch.start}
+            r="6"
+            fill="#050505"
+            stroke={branch.color}
+            stroke-width="2.5"
+          />
+        ))
+      }
+      {
+        branches
+          .filter((branch) => branch.merged)
+          .map((branch) => (
+            <circle
+              data-reveal-y={branch.end}
+              cx="40"
+              cy={branch.end}
+              r="6"
+              fill="#050505"
+              stroke={branch.color}
+              stroke-width="2.5"
+            />
+          ))
+      }
+      {
+        branches.map((branch, branchIndex) => (
+          <>
+            <circle
+              data-reveal-path={branchIndex}
+              data-reveal-path-y={branchStartNodeY(branch)}
+              cx={branch.x}
+              cy={branchStartNodeY(branch)}
+              r="8"
+              fill={branch.color}
+            />
+            <circle
+              data-reveal-path={branchIndex}
+              data-reveal-path-y={branchEndNodeY(branch)}
+              cx={branch.x}
+              cy={branchEndNodeY(branch)}
+              r="8"
+              fill={branch.color}
+            />
+          </>
+        ))
+      }
     </g>
 
     <g class="year-labels">
-      {years.map((year) => <text data-reveal-y={y(year)} x="16" y={y(year) + 4} text-anchor="end">{year}</text>)}
+      {
+        years.map((year) => (
+          <text
+            data-reveal-y={y(year)}
+            x="16"
+            y={y(year) + 4}
+            text-anchor="end"
+          >
+            {year}
+          </text>
+        ))
+      }
     </g>
 
     <g class="branch-labels">
-      {branches.map((branch, branchIndex) => (
-        <g data-reveal-path={branchIndex} data-reveal-path-y={branchLabelRevealY(branch)}>
-          <rect
-            class="branch-label-background"
-            x={branchLabelBackgroundX(branch)}
-            y={branchLabelY(branch) - 16}
-            width={branchLabelWidth(branch)}
-            height="24"
-            rx="6"
-          />
-          <text
-            x={branchLabelX(branch)}
-            y={branchLabelY(branch)}
-            text-anchor={isShortMergedBranch(branch) ? "middle" : "start"}
-            fill={branch.color}
+      {
+        branches.map((branch, branchIndex) => (
+          <g
+            class="branch-label-trigger"
+            data-reveal-path={branchIndex}
+            data-reveal-path-y={branchLabelRevealY(branch)}
+            data-branch-trigger
+            data-branch-label={branch.label}
+            data-branch-title={branch.title}
+            data-branch-period={branch.period}
+            data-branch-description={branch.description}
+            data-branch-color={branch.color}
+            role="button"
+            tabindex="0"
+            aria-label={`Mehr über ${branch.title} erfahren`}
+            aria-expanded="false"
           >
-            {branch.label}
-          </text>
-        </g>
-      ))}
+            <rect
+              class="branch-label-background"
+              x={branchLabelBackgroundX(branch)}
+              y={branchLabelY(branch) - 16}
+              width={branchLabelWidth(branch)}
+              height="24"
+              rx="6"
+            />
+            <text
+              x={branchLabelX(branch)}
+              y={branchLabelY(branch)}
+              text-anchor={isShortMergedBranch(branch) ? "middle" : "start"}
+              fill={branch.color}
+            >
+              {branch.label}
+            </text>
+          </g>
+        ))
+      }
     </g>
   </svg>
 </div>
+
+<aside
+  class="branch-popover"
+  data-branch-popover
+  data-state="closed"
+  hidden
+  aria-live="polite"
+  aria-label="Branch-Details"
+>
+  <h2 data-branch-popover-title></h2>
+  <div class="branch-popover-details">
+    <span class="branch-popover-period" data-branch-popover-period></span>
+    <p data-branch-popover-description></p>
+  </div>
+</aside>
 
 <script>
   const setupGitGraph = () => {
@@ -152,6 +315,132 @@ const branchPath = (branch: (typeof branches)[number]) => {
 
     graph.dataset.ready = "true";
     let frame = 0;
+    const popover = document.querySelector<HTMLElement>(
+      "[data-branch-popover]",
+    );
+    let activeTrigger: SVGElement | null = null;
+    let closeTimer = 0;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    const closeBranchPopover = (restoreFocus = false) => {
+      if (!popover || popover.hidden) return;
+      popover.dataset.state = "closed";
+      activeTrigger?.setAttribute("aria-expanded", "false");
+      window.clearTimeout(closeTimer);
+      closeTimer = window.setTimeout(
+        () => {
+          popover.hidden = true;
+          activeTrigger?.classList.remove("is-expanded");
+          if (restoreFocus) activeTrigger?.focus();
+          activeTrigger = null;
+        },
+        reducedMotion.matches ? 0 : 240,
+      );
+    };
+
+    const openBranchPopover = (trigger: SVGElement) => {
+      if (!popover) return;
+      window.clearTimeout(closeTimer);
+      activeTrigger?.classList.remove("is-expanded");
+      activeTrigger?.setAttribute("aria-expanded", "false");
+
+      const title = popover.querySelector<HTMLElement>(
+        "[data-branch-popover-title]",
+      );
+      const period = popover.querySelector<HTMLElement>(
+        "[data-branch-popover-period]",
+      );
+      const description = popover.querySelector<HTMLElement>(
+        "[data-branch-popover-description]",
+      );
+
+      if (title) {
+        title.textContent = trigger.dataset.branchLabel ?? "";
+        title.style.color = trigger.dataset.branchColor ?? "";
+      }
+      if (period) period.textContent = trigger.dataset.branchPeriod ?? "";
+      if (description)
+        description.textContent = trigger.dataset.branchDescription ?? "";
+
+      const triggerBounds = trigger.getBoundingClientRect();
+      const left = triggerBounds.left;
+      const availableWidth = window.innerWidth - left - 16;
+      const width = Math.max(
+        triggerBounds.width,
+        Math.min(340, availableWidth),
+      );
+
+      popover.style.width = `${width}px`;
+      popover.style.left = `${left}px`;
+      popover.style.top = `${triggerBounds.top}px`;
+      popover.style.setProperty("--tag-height", `${triggerBounds.height}px`);
+      popover.hidden = false;
+      popover.dataset.state = "closed";
+
+      const popoverBounds = popover.getBoundingClientRect();
+      const svg = trigger.ownerSVGElement;
+      const matrix = svg?.getScreenCTM();
+      const scaleX = matrix ? Math.hypot(matrix.a, matrix.b) : 1;
+      const scaleY = matrix ? Math.hypot(matrix.c, matrix.d) : 1;
+      trigger.style.setProperty(
+        "--expanded-tag-width",
+        `${popoverBounds.width / scaleX}px`,
+      );
+      trigger.style.setProperty(
+        "--expanded-tag-height",
+        `${popoverBounds.height / scaleY}px`,
+      );
+      popover.style.setProperty(
+        "--morph-right",
+        `${Math.max(0, popoverBounds.width - triggerBounds.width)}px`,
+      );
+      popover.style.setProperty(
+        "--morph-bottom",
+        `${popoverBounds.height}px`,
+      );
+
+      activeTrigger = trigger;
+      trigger.classList.add("is-expanded");
+      trigger.setAttribute("aria-expanded", "true");
+      window.requestAnimationFrame(() => {
+        popover.dataset.state = "open";
+      });
+    };
+
+    const toggleBranchPopover = (trigger: SVGElement) => {
+      if (activeTrigger === trigger && popover?.dataset.state === "open") {
+        closeBranchPopover(true);
+        return;
+      }
+
+      openBranchPopover(trigger);
+    };
+
+    graph
+      .querySelectorAll<SVGElement>("[data-branch-trigger]")
+      .forEach((trigger) => {
+        trigger.addEventListener("click", (event) => {
+          event.stopPropagation();
+          toggleBranchPopover(trigger);
+        });
+        trigger.addEventListener("keydown", (event) => {
+          if (event.key !== "Enter" && event.key !== " ") return;
+          event.preventDefault();
+          toggleBranchPopover(trigger);
+        });
+      });
+
+    popover?.addEventListener("click", (event) => event.stopPropagation());
+    document.addEventListener("click", () => closeBranchPopover());
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeBranchPopover(true);
+    });
+    window.addEventListener("scroll", () => closeBranchPopover(), {
+      passive: true,
+    });
+    window.addEventListener("resize", () => closeBranchPopover(), {
+      passive: true,
+    });
 
     const update = () => {
       frame = 0;
@@ -178,9 +467,10 @@ const branchPath = (branch: (typeof branches)[number]) => {
       paths.forEach((path) => {
         const length = path.getTotalLength();
         const box = path.getBBox();
-        const progress = box.height === 0
-          ? Number(drawnHeight >= box.y)
-          : Math.max(0, Math.min(1, (drawnHeight - box.y) / box.height));
+        const progress =
+          box.height === 0
+            ? Number(drawnHeight >= box.y)
+            : Math.max(0, Math.min(1, (drawnHeight - box.y) / box.height));
         const revealedLength = length * progress;
 
         path.style.strokeDasharray = `${length}`;
@@ -188,41 +478,45 @@ const branchPath = (branch: (typeof branches)[number]) => {
         revealedLengths.push(revealedLength);
       });
 
-      graph.querySelectorAll<SVGElement>("[data-reveal-y]").forEach((element) => {
-        const elementY = Number(element.dataset.revealY ?? 0);
-        element.classList.toggle("is-visible", elementY <= drawnHeight);
-      });
+      graph
+        .querySelectorAll<SVGElement>("[data-reveal-y]")
+        .forEach((element) => {
+          const elementY = Number(element.dataset.revealY ?? 0);
+          element.classList.toggle("is-visible", elementY <= drawnHeight);
+        });
 
-      graph.querySelectorAll<SVGElement>("[data-reveal-path]").forEach((element) => {
-        const branchIndex = Number(element.dataset.revealPath ?? 0);
-        const path = paths[branchIndex + 1];
-        if (!path) return;
+      graph
+        .querySelectorAll<SVGElement>("[data-reveal-path]")
+        .forEach((element) => {
+          const branchIndex = Number(element.dataset.revealPath ?? 0);
+          const path = paths[branchIndex + 1];
+          if (!path) return;
 
-        let targetLength = Number(element.dataset.revealLength);
-        if (!Number.isFinite(targetLength)) {
-          const targetY = Number(element.dataset.revealPathY ?? 0);
-          let low = 0;
-          let high = path.getTotalLength();
+          let targetLength = Number(element.dataset.revealLength);
+          if (!Number.isFinite(targetLength)) {
+            const targetY = Number(element.dataset.revealPathY ?? 0);
+            let low = 0;
+            let high = path.getTotalLength();
 
-          for (let step = 0; step < 14; step++) {
-            const middle = (low + high) / 2;
-            if (path.getPointAtLength(middle).y <= targetY) {
-              low = middle;
-            } else {
-              high = middle;
+            for (let step = 0; step < 14; step++) {
+              const middle = (low + high) / 2;
+              if (path.getPointAtLength(middle).y <= targetY) {
+                low = middle;
+              } else {
+                high = middle;
+              }
             }
+
+            targetLength = low;
+            element.dataset.revealLength = String(targetLength);
           }
 
-          targetLength = low;
-          element.dataset.revealLength = String(targetLength);
-        }
-
-        element.classList.toggle(
-          "is-visible",
-          Number(element.dataset.revealPathY ?? 0) <= drawnHeight &&
-            revealedLengths[branchIndex + 1] >= targetLength,
-        );
-      });
+          element.classList.toggle(
+            "is-visible",
+            Number(element.dataset.revealPathY ?? 0) <= drawnHeight &&
+              revealedLengths[branchIndex + 1] >= targetLength,
+          );
+        });
     };
 
     const requestUpdate = () => {
@@ -240,15 +534,127 @@ const branchPath = (branch: (typeof branches)[number]) => {
 </script>
 
 <style>
-  .git-graph { position: relative; width: 560px; max-width: 100%; height: var(--graph-height); }
-  svg { display: block; width: 560px; height: var(--graph-height); overflow: visible; }
-  :is([data-reveal-y], [data-reveal-path]) { opacity: 0; transition: opacity 120ms ease-out; }
-  :is([data-reveal-y], [data-reveal-path]).is-visible { opacity: 1; }
-  .year-labels { fill: var(--color-muted); font-family: var(--font-mono); font-size: 11px; }
-  .branch-labels { font-family: var(--font-mono); font-size: 12px; }
+  .git-graph {
+    position: relative;
+    width: 560px;
+    max-width: 100%;
+    height: var(--graph-height);
+  }
+  svg {
+    display: block;
+    width: 560px;
+    height: var(--graph-height);
+    overflow: visible;
+  }
+  :is([data-reveal-y], [data-reveal-path]) {
+    opacity: 0;
+    transition: opacity 120ms ease-out;
+  }
+  :is([data-reveal-y], [data-reveal-path]).is-visible {
+    opacity: 1;
+  }
+  .year-labels {
+    fill: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+  .branch-labels {
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+  .branch-label-trigger {
+    cursor: pointer;
+    outline: none;
+    user-select: none;
+  }
+  .branch-label-trigger:focus-visible .branch-label-background {
+    stroke: color-mix(in oklab, var(--color-accent) 60%, transparent);
+    stroke-width: 2;
+  }
+  .branch-label-trigger.is-expanded .branch-label-background {
+    width: var(--expanded-tag-width);
+    height: var(--expanded-tag-height);
+    stroke: color-mix(in oklab, white 12%, transparent);
+  }
   .branch-label-background {
     fill: var(--color-void);
     fill-opacity: 0.95;
     stroke: color-mix(in oklab, white 10%, transparent);
+    transition:
+      width 240ms cubic-bezier(0.23, 1, 0.32, 1),
+      height 240ms cubic-bezier(0.23, 1, 0.32, 1),
+      stroke 160ms ease-out;
+  }
+  .branch-popover {
+    --morph-right: 0px;
+    --morph-bottom: 0px;
+    --tag-height: 24px;
+    box-sizing: border-box;
+    position: fixed;
+    z-index: 80;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    padding: calc(var(--tag-height) + 0.7rem) 0.75rem 0.75rem;
+    color: var(--color-text);
+    border: 0;
+    border-radius: 0.4rem;
+    background: transparent;
+    transform-origin: top left;
+    transition:
+      clip-path 240ms cubic-bezier(0.23, 1, 0.32, 1),
+      border-radius 240ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .branch-popover[data-state="closed"] {
+    clip-path: inset(0 var(--morph-right) var(--morph-bottom) 0 round 0.4rem);
+  }
+  .branch-popover[data-state="open"] {
+    clip-path: inset(0 0 0 0 round 0.4rem);
+  }
+  .branch-popover h2 {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .branch-popover-details {
+    transition:
+      opacity 160ms ease-out 70ms,
+      transform 200ms cubic-bezier(0.23, 1, 0.32, 1) 40ms;
+  }
+  .branch-popover[data-state="closed"] .branch-popover-details {
+    opacity: 0;
+    transform: translateY(-3px);
+    transition-delay: 0ms;
+  }
+  .branch-popover-period {
+    color: var(--color-muted);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .branch-popover p {
+    margin-top: 0.55rem;
+    color: var(--color-subtle);
+    font-size: 0.78rem;
+    line-height: 1.65;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .branch-label-trigger:hover .branch-label-background {
+      stroke: color-mix(in oklab, white 24%, transparent);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .branch-label-trigger,
+    .branch-label-background,
+    .branch-popover,
+    .branch-popover-details {
+      transition-duration: 0.01ms;
+    }
   }
 </style>
